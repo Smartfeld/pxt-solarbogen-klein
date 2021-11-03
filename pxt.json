@@ -13,7 +13,9 @@
         "main.ts",
         "README.md",
         "solarbogen.ts",
-        "neopixel.ts"
+        "neopixel.ts",
+        "_locales/de/pxt-solarbogen-klein-jsdoc-strings.json",
+        "_locales/de/pxt-solarbogen-klein-strings.json"
     ],
     "testFiles": [
         "test.ts"

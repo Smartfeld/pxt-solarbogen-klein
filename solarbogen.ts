@@ -12,12 +12,14 @@ class Sun{
     sunSize: number;
     sunDelayInMillis: number;
     intervalID: number;
+    brightnessOfSun: number;
+
     sunColoring: Colors;
 
     NUMBER_OF_LEDS_ONE_STRIP: number;
     NUMBER_OF_PARALLEL_STRIPS: number;
     
-    constructor(pin: DigitalPin, sunPositionHead: number, sunSize: number){
+    constructor(pin: DigitalPin, sunPositionHead: number, sunSize: number, brightnessOfSun: number){
         this.sunPositionHead = sunPositionHead;
         this.sunPositionHeadBefore = sunPositionHead;
         this.sunSize = sunSize;
@@ -25,6 +27,7 @@ class Sun{
         this.NUMBER_OF_PARALLEL_STRIPS = 7;
         this.numberOfLEDs = this.NUMBER_OF_LEDS_ONE_STRIP * this.NUMBER_OF_PARALLEL_STRIPS;
         this.sunColoring = Colors.White;
+        this.brightnessOfSun = brightnessOfSun;
     }
 
     moveSunOneStep() {
@@ -49,6 +52,17 @@ class Sun{
 
     stopSun(){
         control.clearInterval(this.intervalID, control.IntervalMode.Interval);
+    }
+
+
+    setBrightnessOfSun(brightnessOfSun: number){
+        if(brightnessOfSun>255){
+            brightnessOfSun = 255;
+        }
+        if(brightnessOfSun < 0){
+            brightnessOfSun = 0;
+        }
+        this.brightnessOfSun = brightnessOfSun;
     }
 
     moveSunAutomatically(delayInMillis: number) {
@@ -82,8 +96,9 @@ class Sun{
     }
 
     private setLED(index: number): void {
+        strip.setBrightness(this.brightnessOfSun);
         strip.setPixelColor(index, this.sunColoring);
-        strip.setPixelWhiteLED(index,255);
+        strip.setPixelWhiteLED(index, this.brightnessOfSun);
     }
 
     private clearLED(index: number): void {
@@ -163,42 +178,44 @@ enum Colors {
  * Custom blocks
  */
 //% weight=100 color=#0fbc11 icon="\uf185"
-//% groups=['Gott sprach...', 'Gott sah, dass es nicht gut war und ändert...']
+//% groups=['start', 'automatic movement', 'manual movement', 'manual changes']
 namespace sonnenbogen {
     let mysun: Sun;
     /**
      * initializes the LED- stripe
      * @param pin Pin
      * @param sunSize Sun size
+     * @param brightnessOfSun Brightness of sun
      */
-    //% block="Es werde Licht an $pin, die Sonne soll $sunSize LEDs breit sein."
+    //% block="activate sun on $pin, sun is $sunSize LEDs wide, $brighnessOfSun bright"
     //% sunSize.defl=5 sunSize.min=1 sunSize.max=30
-    //% group="Gott sprach..."
+    //% brightnessOfSun.defl=255 brightnessOfSun.min=0 brightnessOfSun.max=255
+    //% group="start"
     //% weight=100
-    export function init(pin: DigitalPin, sunSize: number): void {
-        mysun = new Sun(pin,sunSize,sunSize);
+    export function init(pin: DigitalPin, sunSize: number, brightnessOfSun: number): void {
+        mysun = new Sun(pin,sunSize,sunSize,brightnessOfSun);
         strip = neopixel.create(pin, mysun.numberOfLEDs, NeoPixelMode.RGBW);
         strip.show();
     }
 
     /**
-    * moves the Sun automatically
+    * moves the sun automatically
     * @param delayInMillis Delay time
     */
-    //% block="Bewege Sonne automatisch mit Pausen von $delayInMillis ms"
+    //% block="move sun automatically with delays of $delayInMillis ms"
     //% delayInMillis.min=0 delayInMillis.max=2000 delayInMillis.defl=100
-    //% group="Gott sprach..."
+    //% group="automatic movement"
     //% weight=90
     export function moveSunAutomatically(delayInMillis: number): void {
         mysun.moveSunAutomatically(delayInMillis);
     }
 
     /**
-     * moves the Sun one step
+     * moves the sun one step
      * 
      */
-    //% block="Bewege Sonne einen Schritt vorwärts."
-    //% group="Gott sprach..."
+    //% block="move sun one step forward"
+    //% group="manual movement"
     //% weight=80
     export function moveSunOneStep(): void{
         mysun.moveSunOneStep();
@@ -208,8 +225,8 @@ namespace sonnenbogen {
     * stops the sun movement
     * 
     */
-    //% block="Sonne stehe still."
-    //% group="Gott sprach..."
+    //% block="stop sun movement"
+    //% group="manual movement"
     //% weight=70
     export function stopSun(): void {
         mysun.stopSun();
@@ -219,11 +236,24 @@ namespace sonnenbogen {
     * changes the coloring of the sun
     * @param color Color
     */
-    //% block="Färbung der Sonne auf %color"
-    //% group="Gott sah, dass es nicht gut war und ändert..."
+    //% block="change coloring of the sun to %color"
+    //% group="manual changes"
     //% weight=60
     export function setSunColor(color: Colors): void {
-        mysun.setSunColoring(color)
+        mysun.setSunColoring(color);
+        mysun.updateSun();
+    }
+
+    /**
+    * changes the brightness of the sun
+    * @param brightnessOfSun
+    */
+    //% block="change bightness of the sun to %brightnessOfSun"
+    //% brightnessOfSun.defl=255 brightnessOfSun.min=0 brightnessOfSun.max=255
+    //% group="manual changes"
+    //% weight=70
+    export function setBrightnessOfTheSun(brightnessOfSun: number): void {
+        mysun.setBrightnessOfSun(brightnessOfSun);
         mysun.updateSun();
     }
 }

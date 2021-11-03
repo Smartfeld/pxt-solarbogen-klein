@@ -5,7 +5,12 @@
 */
 let strip: neopixel.Strip;
 
-class Sun{
+enum direction {
+    fwd = 1,
+    rwd = 0
+};
+
+class Sun {
     sunPositionHead: number;
     sunPositionHeadBefore: number;
     numberOfLEDs: number;
@@ -13,13 +18,15 @@ class Sun{
     sunDelayInMillis: number;
     intervalID: number;
     brightnessOfSun: number;
+    simulateClouds: boolean;
+    directionOfSun: direction;
 
     sunColoring: Colors;
 
     NUMBER_OF_LEDS_ONE_STRIP: number;
     NUMBER_OF_PARALLEL_STRIPS: number;
-    
-    constructor(pin: DigitalPin, sunPositionHead: number, sunSize: number, brightnessOfSun: number){
+
+    constructor(pin: DigitalPin, sunPositionHead: number, sunSize: number, brightnessOfSun: number) {
         this.sunPositionHead = sunPositionHead;
         this.sunPositionHeadBefore = sunPositionHead;
         this.sunSize = sunSize;
@@ -28,41 +35,63 @@ class Sun{
         this.numberOfLEDs = this.NUMBER_OF_LEDS_ONE_STRIP * this.NUMBER_OF_PARALLEL_STRIPS;
         this.sunColoring = Colors.White;
         this.brightnessOfSun = brightnessOfSun;
+        this.simulateClouds = false;
+        this.sunDelayInMillis = 50;
+        this.directionOfSun = direction.fwd;
     }
 
     moveSunOneStep() {
-        this.updateSun()
-        this.incrementSunPositionHead();
-        strip.show();
+        if (this.directionOfSun === direction.fwd) {
+            this.incrementSunPositionHead();
+        } else {
+            this.decrementSunPositionHead();
+        }
+        this.updateSun();
     }
 
     updateSun() {
         for (let stripeNumber = 0; stripeNumber < this.NUMBER_OF_PARALLEL_STRIPS; stripeNumber++) {
-            for (let sunPixels = 0; sunPixels < this.sunSize; sunPixels++) {
-                let px: number;
-                let pxBefore: number;
-                px = this.sunPositionHead - sunPixels;
-                pxBefore = this.sunPositionHeadBefore - sunPixels;
-                this.clearLEDDevidedStripe(pxBefore, stripeNumber);
-                this.setLEDDevidedStripe(px, stripeNumber);
+            if (this.directionOfSun === direction.fwd) {
+                for (let sunPixels = 0; sunPixels < this.sunSize; sunPixels++) {
+                    let px: number;
+                    let pxBefore: number;
+                    px = this.sunPositionHead - sunPixels;
+                    pxBefore = this.sunPositionHeadBefore - sunPixels;
+                    this.clearLEDDevidedStripe(pxBefore, stripeNumber);
+                    this.setLEDDevidedStripe(px, stripeNumber);
+                }
+            } else {
+                for (let sunPixels = this.sunSize - 1; sunPixels >= 0; sunPixels--) {
+                    let px: number;
+                    let pxBefore: number;
+                    px = this.sunPositionHead - sunPixels;
+                    pxBefore = this.sunPositionHeadBefore - sunPixels;
+                    this.clearLEDDevidedStripe(pxBefore, stripeNumber);
+                    this.setLEDDevidedStripe(px, stripeNumber);
+                }
             }
         }
         strip.show();
     }
 
-    stopSun(){
+    stopSun() {
         control.clearInterval(this.intervalID, control.IntervalMode.Interval);
     }
 
+    resumeSun() {
+        this.moveSunAutomatically(this.sunDelayInMillis);
+    }
 
-    setBrightnessOfSun(brightnessOfSun: number){
-        if(brightnessOfSun>255){
+    setBrightnessOfSun(brightnessOfSun: number) {
+        if (brightnessOfSun > 255) {
             brightnessOfSun = 255;
         }
-        if(brightnessOfSun < 0){
+        if (brightnessOfSun < 0) {
             brightnessOfSun = 0;
         }
         this.brightnessOfSun = brightnessOfSun;
+        strip.setBrightness(this.brightnessOfSun);
+        this.updateSun();
     }
 
     moveSunAutomatically(delayInMillis: number) {
@@ -75,9 +104,10 @@ class Sun{
 
     setSunColoring(color: Colors) {
         this.sunColoring = color;
+        this.updateSun();
     }
 
-    private incrementSunPositionHead(): void{
+    private incrementSunPositionHead(): void {
         this.sunPositionHeadBefore = this.sunPositionHead;
         if (this.sunPositionHead < (this.NUMBER_OF_LEDS_ONE_STRIP + this.sunSize - 1)) {
             this.sunPositionHead = this.sunPositionHead + 1;
@@ -88,17 +118,23 @@ class Sun{
 
     private decrementSunPositionHead(): void {
         this.sunPositionHeadBefore = this.sunPositionHead;
-        if (this.sunPositionHead < 0) {
-            this.sunPositionHead = this.NUMBER_OF_LEDS_ONE_STRIP - 1;
+        if (this.sunPositionHead > (0 - this.sunSize + 1)) {
+            this.sunPositionHead = this.sunPositionHead - 1;
         } else {
-            this.sunPositionHead = this.sunPositionHead -1;
+            this.sunPositionHead = this.NUMBER_OF_LEDS_ONE_STRIP + this.sunSize;
         }
     }
 
     private setLED(index: number): void {
-        strip.setBrightness(this.brightnessOfSun);
         strip.setPixelColor(index, this.sunColoring);
-        strip.setPixelWhiteLED(index, this.brightnessOfSun);
+        if (this.simulateClouds) {
+            let brightnessRandom = Math.randomRange(0, this.brightnessOfSun);
+            strip.setBrightness(brightnessRandom);
+            strip.setPixelWhiteLED(index, brightnessRandom);
+        } else {
+            strip.setBrightness(this.brightnessOfSun);
+            strip.setPixelWhiteLED(index, this.brightnessOfSun);
+        }
     }
 
     private clearLED(index: number): void {
@@ -106,7 +142,7 @@ class Sun{
         strip.setPixelWhiteLED(index, 0);
     }
 
-    private isInRange(indexLED: number, stripeNumber: number): boolean{
+    private isInRange(indexLED: number, stripeNumber: number): boolean {
         let rangeOK: boolean;
         rangeOK = true;
 
@@ -120,9 +156,9 @@ class Sun{
         return rangeOK;
     }
 
-    private setLEDDevidedStripe(indexLED: number, stripeNumber: number){
-        indexLED = this.getIndexOfParallelLED(indexLED,stripeNumber);
-        if(this.isInRange(indexLED,stripeNumber)){
+    private setLEDDevidedStripe(indexLED: number, stripeNumber: number) {
+        indexLED = this.getIndexOfParallelLED(indexLED, stripeNumber);
+        if (this.isInRange(indexLED, stripeNumber)) {
             this.setLED(indexLED);
         }
     }
@@ -140,13 +176,13 @@ class Sun{
 
     getIndexOfParallelLED(indexLED: number, stripeNumber: number): number {
         let indexOfParallelLED;
-        if(this.isOdd(stripeNumber)){
+        if (this.isOdd(stripeNumber)) {
             //ungerade 1 3 5
-            indexOfParallelLED = ((stripeNumber + 1) * this.NUMBER_OF_LEDS_ONE_STRIP-1) - indexLED;
-        }else{
+            indexOfParallelLED = ((stripeNumber + 1) * this.NUMBER_OF_LEDS_ONE_STRIP - 1) - indexLED;
+        } else {
             //gerade 0 2 4
             indexOfParallelLED = stripeNumber * this.NUMBER_OF_LEDS_ONE_STRIP + indexLED;
-        }      
+        }
         return indexOfParallelLED;
     }
 }
@@ -193,7 +229,7 @@ namespace sonnenbogen {
     //% group="start"
     //% weight=100
     export function init(pin: DigitalPin, sunSize: number, brightnessOfSun: number): void {
-        mysun = new Sun(pin,sunSize,sunSize,brightnessOfSun);
+        mysun = new Sun(pin, 0, sunSize, brightnessOfSun);
         strip = neopixel.create(pin, mysun.numberOfLEDs, NeoPixelMode.RGBW);
         strip.show();
     }
@@ -211,25 +247,60 @@ namespace sonnenbogen {
     }
 
     /**
-     * moves the sun one step
-     * 
-     */
+    * stops the sun movement
+    */
+    //% block="stop sun movement"
+    //% group="manual movement"
+    //% weight=100
+    export function stopSun(): void {
+        mysun.stopSun();
+    }
+
+    /**
+    * stops the sun movement and disables the sun
+    */
+    //% block="disable sun"
+    //% group="manual changes"
+    //% weight=90
+    export function disableSun(): void {
+        mysun.stopSun();
+        mysun.setBrightnessOfSun(0);
+        strip.show();
+    }
+
+    /**
+    * enables the sun
+    */
+    //% block="enable sun"
+    //% group="manual changes"
+    //% weight=80
+    export function enableSun(): void {
+        mysun.setBrightnessOfSun(255);
+        mysun.resumeSun();
+    }
+
+    /**
+    * moves the sun one step
+    */
     //% block="move sun one step forward"
     //% group="manual movement"
-    //% weight=80
-    export function moveSunOneStep(): void{
+    //% weight=70
+    export function moveSunOneStep(): void {
         mysun.moveSunOneStep();
     }
 
     /**
-    * stops the sun movement
-    * 
+    * sets the sun position
+    * @param sunPositionHead sun position
     */
-    //% block="stop sun movement"
-    //% group="manual movement"
-    //% weight=70
-    export function stopSun(): void {
-        mysun.stopSun();
+    //% block="set sun position to %sunPositionHead"
+    //% group="manual changes"
+    //% weight=60
+    export function setSunPosition(sunPositionHead: number): void {
+        mysun.sunPositionHead = sunPositionHead;
+        mysun.sunPositionHeadBefore = sunPositionHead;
+        strip.clear();
+        mysun.updateSun();
     }
 
     /**
@@ -238,22 +309,54 @@ namespace sonnenbogen {
     */
     //% block="change coloring of the sun to %color"
     //% group="manual changes"
-    //% weight=60
+    //% weight=50
     export function setSunColor(color: Colors): void {
         mysun.setSunColoring(color);
-        mysun.updateSun();
     }
 
     /**
     * changes the brightness of the sun
-    * @param brightnessOfSun
+    * @param brightnessOfSun Brightness of Sun
     */
     //% block="change bightness of the sun to %brightnessOfSun"
     //% brightnessOfSun.defl=255 brightnessOfSun.min=0 brightnessOfSun.max=255
     //% group="manual changes"
-    //% weight=70
+    //% weight=40
     export function setBrightnessOfTheSun(brightnessOfSun: number): void {
         mysun.setBrightnessOfSun(brightnessOfSun);
-        mysun.updateSun();
+    }
+
+    /**
+    * simulates cloudy weather
+    */
+    //% block="simulate cloudy weather"
+    //% group="manual changes"
+    //% weight=30
+    export function enableClouds(): void {
+        mysun.simulateClouds = true;
+    }
+
+    /**
+    * simulates cloudy weather
+    */
+    //% block="disable cloudy weather"
+    //% group="manual changes"
+    //% weight=20
+    export function disableClouds(): void {
+        mysun.simulateClouds = false;
+    }
+
+    /**
+    * changes the direction of movement
+    */
+    //% block="change direction of movement"
+    //% group="manual changes"
+    //% weight=10
+    export function changeDirection(): void {
+        if (mysun.directionOfSun === direction.fwd) {
+            mysun.directionOfSun = direction.rwd;
+        } else {
+            mysun.directionOfSun = direction.fwd;
+        }
     }
 }

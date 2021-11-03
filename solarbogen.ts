@@ -223,7 +223,7 @@ namespace sonnenbogen {
      * @param sunSize Sun size
      * @param brightnessOfSun Brightness of sun
      */
-    //% block="activate sun on $pin, sun is $sunSize LEDs wide, $brighnessOfSun bright"
+    //% block="activate sun on $pin, sun is $sunSize LEDs wide, $brightnessOfSun bright"
     //% sunSize.defl=5 sunSize.min=1 sunSize.max=30
     //% brightnessOfSun.defl=255 brightnessOfSun.min=0 brightnessOfSun.max=255
     //% group="start"

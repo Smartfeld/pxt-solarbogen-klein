@@ -55,6 +55,7 @@
   "sonnenbogen.setSunColor|block": "ändere Farbe der RGB- LEDs auf %color",
   "sonnenbogen.setSunPosition|block": "setze Sonnenposition auf %sunPositionHead",
   "sonnenbogen.stopSun|block": "stoppe Sonnenbewegung",
+  "sonnenbogen.getPositionHead|block": "lese Sonnenposition",
   "sonnenbogen|block": "sonnenbogen",
   "{id:category}Neopixel": "Neopixel",
   "{id:category}Sonnenbogen": "Sonnenbogen",

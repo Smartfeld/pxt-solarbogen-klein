@@ -70,5 +70,6 @@
   "sonnenbogen.setSunPosition": "setzt die Position der Sonne auf gewünschten Wert",
   "sonnenbogen.setSunPosition|param|sunPositionHead": "Position der Sonne",
   "sonnenbogen.stopSun": "Stoppt die Sonnenbewegung",
+  "sonnenbogen.getPositionHead": "gibt die aktuelle Sonnenposition zurück",
   "strip": "Nutze diese Datei für benutzerdefinierte Funktionen und Blöcke.\r\nWeitere Informationen unter https://makecode.microbit.org/blocks/custom"
 }

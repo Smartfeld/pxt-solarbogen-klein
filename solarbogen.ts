@@ -107,6 +107,10 @@ class Sun {
         this.updateSun();
     }
 
+    getPositionHead(){
+        return this.sunPositionHead;
+    }
+
     private incrementSunPositionHead(): void {
         this.sunPositionHeadBefore = this.sunPositionHead;
         if (this.sunPositionHead < (this.NUMBER_OF_LEDS_ONE_STRIP + this.sunSize - 1)) {
@@ -358,5 +362,15 @@ namespace sonnenbogen {
         } else {
             mysun.directionOfSun = direction.fwd;
         }
+    }
+
+    /**
+        * gets the position of the sun
+        */
+    //% block="get sun position"
+    //% group="manual movement"
+    //% weight=5
+    export function getPositionHead(): number{
+        return mysun.getPositionHead();
     }
 }

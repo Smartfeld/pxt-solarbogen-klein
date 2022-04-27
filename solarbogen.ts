@@ -23,16 +23,16 @@ class Sun {
 
     sunColoring: Colors;
 
-    NUMBER_OF_LEDS_ONE_STRIP: number;
-    NUMBER_OF_PARALLEL_STRIPS: number;
+    numberOfLEDsOneStrip: number;
+    numberOfParallelStripes: number;
 
-    constructor(pin: DigitalPin, sunPositionHead: number, sunSize: number, brightnessOfSun: number) {
+    constructor(pin: DigitalPin, sunPositionHead: number, sunSize: number, brightnessOfSun: number, numberOfParallelStripes: number, numberOfLEDsOneStrip:number ) {
         this.sunPositionHead = sunPositionHead;
         this.sunPositionHeadBefore = sunPositionHead;
         this.sunSize = sunSize;
-        this.NUMBER_OF_LEDS_ONE_STRIP = 188;
-        this.NUMBER_OF_PARALLEL_STRIPS = 7;
-        this.numberOfLEDs = this.NUMBER_OF_LEDS_ONE_STRIP * this.NUMBER_OF_PARALLEL_STRIPS;
+        this.numberOfLEDsOneStrip = numberOfLEDsOneStrip;
+        this.numberOfParallelStripes = numberOfParallelStripes;
+        this.numberOfLEDs = this.numberOfLEDsOneStrip * this.numberOfParallelStripes;
         this.sunColoring = Colors.White;
         this.brightnessOfSun = brightnessOfSun;
         this.simulateClouds = false;
@@ -50,7 +50,7 @@ class Sun {
     }
 
     updateSun() {
-        for (let stripeNumber = 0; stripeNumber < this.NUMBER_OF_PARALLEL_STRIPS; stripeNumber++) {
+        for (let stripeNumber = 0; stripeNumber < this.numberOfParallelStripes; stripeNumber++) {
             if (this.directionOfSun === direction.fwd) {
                 for (let sunPixels = 0; sunPixels < this.sunSize; sunPixels++) {
                     let px: number;
@@ -113,7 +113,7 @@ class Sun {
 
     private incrementSunPositionHead(): void {
         this.sunPositionHeadBefore = this.sunPositionHead;
-        if (this.sunPositionHead < (this.NUMBER_OF_LEDS_ONE_STRIP + this.sunSize - 1)) {
+        if (this.sunPositionHead < (this.numberOfLEDsOneStrip + this.sunSize - 1)) {
             this.sunPositionHead = this.sunPositionHead + 1;
         } else {
             this.sunPositionHead = 0;
@@ -125,7 +125,7 @@ class Sun {
         if (this.sunPositionHead > (0 - this.sunSize + 1)) {
             this.sunPositionHead = this.sunPositionHead - 1;
         } else {
-            this.sunPositionHead = this.NUMBER_OF_LEDS_ONE_STRIP + this.sunSize;
+            this.sunPositionHead = this.numberOfLEDsOneStrip + this.sunSize;
         }
     }
 
@@ -150,11 +150,11 @@ class Sun {
         let rangeOK: boolean;
         rangeOK = true;
 
-        if (indexLED >= this.NUMBER_OF_LEDS_ONE_STRIP * (stripeNumber + 1)) {
+        if (indexLED >= this.numberOfLEDsOneStrip * (stripeNumber + 1)) {
             rangeOK = false;
         }
 
-        if (indexLED < this.NUMBER_OF_LEDS_ONE_STRIP * stripeNumber) {
+        if (indexLED < this.numberOfLEDsOneStrip * stripeNumber) {
             rangeOK = false;
         }
         return rangeOK;
@@ -182,10 +182,10 @@ class Sun {
         let indexOfParallelLED;
         if (this.isOdd(stripeNumber)) {
             //ungerade 1 3 5
-            indexOfParallelLED = ((stripeNumber + 1) * this.NUMBER_OF_LEDS_ONE_STRIP - 1) - indexLED;
+            indexOfParallelLED = ((stripeNumber + 1) * this.numberOfLEDsOneStrip - 1) - indexLED;
         } else {
             //gerade 0 2 4
-            indexOfParallelLED = stripeNumber * this.NUMBER_OF_LEDS_ONE_STRIP + indexLED;
+            indexOfParallelLED = stripeNumber * this.numberOfLEDsOneStrip + indexLED;
         }
         return indexOfParallelLED;
     }
@@ -227,13 +227,15 @@ namespace sonnenbogen {
      * @param sunSize Sun size
      * @param brightnessOfSun Brightness of sun
      */
-    //% block="activate sun on $pin, sun is $sunSize LEDs wide, $brightnessOfSun bright"
+    //% block="activate sun on $pin, sun is $sunSize LEDs wide, $brightnessOfSun bright, $numberOfParallelStripes parallel stripes, $numberOfLEDsOneStrip per stripe"
     //% sunSize.defl=5 sunSize.min=1 sunSize.max=30
+    //% numberOfParallelStripes.defl=5 numberOfParallelStripes.min=1 numberOfParallelStripes.max=7
+    //% numberOfLEDsOneStrip.defl=197 numberOfLEDsOneStrip.min=100 numberOfLEDsOneStrip.max=250
     //% brightnessOfSun.defl=255 brightnessOfSun.min=0 brightnessOfSun.max=255
     //% group="start"
     //% weight=100
-    export function init(pin: DigitalPin, sunSize: number, brightnessOfSun: number): void {
-        mysun = new Sun(pin, 0, sunSize, brightnessOfSun);
+    export function init(pin: DigitalPin, sunSize: number, brightnessOfSun: number, numberOfParallelStripes: number, numberOfLEDsOneStrip:number): void {
+        mysun = new Sun(pin, 0, sunSize, brightnessOfSun, numberOfParallelStripes, numberOfLEDsOneStrip);
         strip = neopixel.create(pin, mysun.numberOfLEDs, NeoPixelMode.RGBW);
         strip.show();
     }

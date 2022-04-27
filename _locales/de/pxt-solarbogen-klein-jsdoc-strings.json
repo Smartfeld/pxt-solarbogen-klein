@@ -60,6 +60,8 @@
   "sonnenbogen.init|param|brightnessOfSun": "Helligkeit der Sonne",
   "sonnenbogen.init|param|pin": "Pin",
   "sonnenbogen.init|param|sunSize": "Sonnengrösse",
+  "sonnenbogen.init|param|numberOfParallelStripes": "Streifen",
+  "sonnenbogen.init|param|numberOfLEDsOneStrip": "LEDs pro Streifen",
   "sonnenbogen.moveSunAutomatically": "bewegt die Sonne automatisch",
   "sonnenbogen.moveSunAutomatically|param|delayInMillis": "Wartezeit",
   "sonnenbogen.moveSunOneStep": "Bewegt die Sonne um einen Schritt",

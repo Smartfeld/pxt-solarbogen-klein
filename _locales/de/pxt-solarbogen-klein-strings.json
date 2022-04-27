@@ -48,7 +48,7 @@
   "sonnenbogen.disableSun|block": "schalte Sonne aus",
   "sonnenbogen.enableClouds|block": "schalte Wolken ein",
   "sonnenbogen.enableSun|block": "schalte Sonne ein",
-  "sonnenbogen.init|block": "Aktiviere Sonne an $pin, Sonne ist $sunSize LEDs breit, $brightnessOfSun hell",
+  "sonnenbogen.init|block": "Aktiviere Sonne an $pin, Sonne ist $sunSize LEDs breit, $brightnessOfSun hell, $numberOfParallelStripes parallele Streifen, $numberOfLEDsOneStrip LEDs pro Streifen",
   "sonnenbogen.moveSunAutomatically|block": "bewege Sonne automatisch mit Wartezeiten von $delayInMillis ms",
   "sonnenbogen.moveSunOneStep|block": "bewege Sonne einen Schritt vorwärts",
   "sonnenbogen.setBrightnessOfTheSun|block": "ändere Helligkeit der Sonne auf %brightnessOfSun",

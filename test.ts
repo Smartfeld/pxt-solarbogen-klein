@@ -1,5 +1,5 @@
 // Hier kann man Tests durchführen; diese Datei wird nicht kompiliert, wenn dieses Paket als Erweiterung verwendet wird.
-sonnenbogen.init(DigitalPin.P0, 10, 255)
+sonnenbogen.init(DigitalPin.P0, 10, 255,5,197)
 basic.forever(function () {
     sonnenbogen.setBrightnessOfTheSun(50)
     serial.writeLine("sun is moving, color white...")
